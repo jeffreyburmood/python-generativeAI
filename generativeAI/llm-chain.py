@@ -1,11 +1,25 @@
-""" An example of a simple generativeAI model using langchain with OpenAI LLM """
+""" AN example of setting up a langchain-based chat using OpenAI LLM and
+    Neo4j to store the chat message history. """
+
+
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import StrOutputParser
-from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.graphs import Neo4jGraph
+from langchain_community.chat_message_histories import Neo4jChatMessageHistory
+from uuid import uuid4
+
+SESSION_ID = str(uuid4())
+print(f"Session ID: {SESSION_ID}")
 
 chat_llm = ChatOpenAI(openai_api_key="sk-...")
+
+graph = Neo4jGraph(
+    url="bolt://localhost:7687",
+    username="neo4j",
+    password="pleaseletmein"
+)
 
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -19,12 +33,8 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-memory = ChatMessageHistory()
-
-
 def get_memory(session_id):
-    return memory
-
+    return Neo4jChatMessageHistory(session_id=session_id, graph=graph)
 
 chat_chain = prompt | chat_llm | StrOutputParser()
 
@@ -54,7 +64,7 @@ while True:
 
         },
         config={
-            "configurable": {"session_id": "none"}
+            "configurable": {"session_id": SESSION_ID}
         }
     )
 
