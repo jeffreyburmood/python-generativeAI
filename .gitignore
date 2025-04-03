@@ -165,3 +165,6 @@ generativeAI/.idea/generativeAI.iml
 generativeAI/.idea/inspectionProfiles/profiles_settings.xml
 generativeAI/.idea/misc.xml
 /generativeAI/.idea
+
+*.xml
+*.iml
