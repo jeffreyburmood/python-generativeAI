@@ -168,3 +168,4 @@ generativeAI/.idea/misc.xml
 
 *.xml
 *.iml
+.DS_Store
