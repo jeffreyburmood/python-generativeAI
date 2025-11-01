@@ -15,7 +15,24 @@ from transformers import pipeline
 # print(result)
 
 # perform the pipeline steps independently
+#
 # Tokenizer step
+#
+# Translating text to numbers is known as encoding. Encoding is done in a two-step process: the tokenization, followed
+# by the conversion to input IDs.
+#
+# As we’ve seen, the first step is to split the text into words (or parts of words, punctuation symbols, etc.),
+# usually called tokens. There are multiple rules that can govern that process, which is why we need to instantiate
+# the tokenizer using the name of the model, to make sure we use the same rules that were used when the model was pretrained.
+#
+# The second step is to convert those tokens into numbers, so we can build a tensor out of them and feed them to the model.
+# To do this, the tokenizer has a vocabulary, which is the part we download when we instantiate it with the from_pretrained()
+# method. Again, we need to use the same vocabulary used when the model was pretrained.
+#
+# To get a better understanding of the two steps, we’ll explore them separately. Note that we will use some methods
+# that perform parts of the tokenization pipeline separately to show you the intermediate results of those steps,
+# but in practice, you should call the tokenizer directly on your inputs
+
 from transformers import AutoTokenizer
 
 checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
@@ -27,6 +44,29 @@ raw_inputs = [
 ]
 inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")
 print(inputs)
+
+# Even the tokenizer step has substeps, the following code blocks are the substeps of the above tokenizer code step
+# The tokenization process is done by the tokenize() method of the tokenizer:
+# This tokenizer is a subword tokenizer: it splits the words until it obtains tokens that can be represented by its vocabulary.
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+
+sequence = "I've been waiting for a HuggingFace course my whole life."
+tokens = tokenizer.tokenize(sequence)
+
+print(tokens)
+
+# The conversion to input IDs is handled by the convert_tokens_to_ids() tokenizer method:
+# These outputs, once converted to the appropriate framework tensor, can then be used as inputs to a model.
+ids = tokenizer.convert_tokens_to_ids(tokens)
+
+print(ids)
+
+# Decoding is going the other way around: from vocabulary indices, we want to get a string. This can be done with
+# the decode() method as follows:
+# Note that the decode method not only converts the indices back to tokens, but also groups together the tokens that
+# were part of the same words to produce a readable sentence.
+decoded_string = tokenizer.decode(ids)
+print(decoded_string)
 
 # Model step
 # There are many different architectures available in 🤗 Transformers, with each one designed around tackling a
