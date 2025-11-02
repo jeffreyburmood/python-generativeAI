@@ -33,15 +33,19 @@ from transformers import pipeline
 # that perform parts of the tokenization pipeline separately to show you the intermediate results of those steps,
 # but in practice, you should call the tokenizer directly on your inputs
 
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 
 checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
 
 raw_inputs = [
     "I've been waiting for a HuggingFace course my whole life.",
     "I hate when lessons are not updated!",
 ]
+# multiple input sequences passed to the tokenizer must result in tensors of the same length, therefore, padding the
+# input sequences is required.
 inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")
 print(inputs)
 
@@ -51,12 +55,11 @@ print(inputs)
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
 sequence = "I've been waiting for a HuggingFace course my whole life."
-tokens = tokenizer.tokenize(sequence)
+tokens = tokenizer.tokenize(sequence, return_tensors='pt')
 
 print(tokens)
 
 # The conversion to input IDs is handled by the convert_tokens_to_ids() tokenizer method:
-# These outputs, once converted to the appropriate framework tensor, can then be used as inputs to a model.
 ids = tokenizer.convert_tokens_to_ids(tokens)
 
 print(ids)
@@ -67,6 +70,19 @@ print(ids)
 # were part of the same words to produce a readable sentence.
 decoded_string = tokenizer.decode(ids)
 print(decoded_string)
+
+# Now to pass the tokenized number ids inputs into the model, the id numbers need to be converted to appropriate tensor
+# framework
+# Transformers models expect multiple sentences / input sequences by default. Here we tried to do everything the tokenizer did behind the
+# scenes when we applied it to a sequence. In the tokenizer pipeline, the tokenizer didn’t just convert
+# the list of input IDs into a tensor, it added a dimension on top of it so we'll do the same in this step
+model_inputs = torch.tensor([ids])  # use ([ids]) instead of (ids)
+print("Model input ids:", model_inputs)
+
+# model_output = model(model_inputs)  doesn't work for some reason even though it's directly from the HF LLM course
+
+# print("Logits:", model_output.logits)
+
 
 # Model step
 # There are many different architectures available in 🤗 Transformers, with each one designed around tackling a
@@ -81,22 +97,11 @@ print(decoded_string)
 # *ForTokenClassification
 # and others 🤗
 
+# OK, we all done with the tokenizer steps and pipeline, now back to figuring out how to sentiment analysis of our
+# input sentence sequences
 # we will need a model with a sequence classification head (to be able to classify the sentences as positive or negative).
-# So, we won’t actually use the AutoModel class, but AutoModelForSequenceClassification:
 
-# from transformers import AutoModel
-#
-# checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
-# model = AutoModel.from_pretrained(checkpoint)
-#
-# outputs = model(**inputs)
-# print(outputs.last_hidden_state.shape)
-
-from transformers import AutoModelForSequenceClassification
-
-checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
-model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
-outputs = model(**inputs)
+outputs = model(**inputs) # we're now using the model inputs created from the previous tokenizer pipeline
 
 # Since we have just two sentences and two labels, the result we get from our model is of shape 2 x 2.
 print(outputs.logits.shape)
@@ -109,8 +114,6 @@ print(outputs.logits)
 # probabilities, they need to go through a SoftMax layer (all 🤗 Transformers models output the logits, as the loss
 # function for training will generally fuse the last activation function, such as SoftMax, with the actual loss function,
 # such as cross entropy):
-
-import torch
 
 predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
 print(predictions)
