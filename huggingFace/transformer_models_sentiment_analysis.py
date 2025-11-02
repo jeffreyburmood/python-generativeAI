@@ -46,7 +46,7 @@ raw_inputs = [
 ]
 # multiple input sequences passed to the tokenizer must result in tensors of the same length, therefore, padding the
 # input sequences is required.
-inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")
+inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")  # pt = pytorch tensors
 print(inputs)
 
 # Even the tokenizer step has substeps, the following code blocks are the substeps of the above tokenizer code step
@@ -55,7 +55,7 @@ print(inputs)
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
 sequence = "I've been waiting for a HuggingFace course my whole life."
-tokens = tokenizer.tokenize(sequence, return_tensors='pt')
+tokens = tokenizer.tokenize(sequence, return_tensors='pt')  # pt = pytorch tensors
 
 print(tokens)
 
@@ -101,7 +101,7 @@ print("Model input ids:", model_inputs)
 # input sentence sequences
 # we will need a model with a sequence classification head (to be able to classify the sentences as positive or negative).
 
-outputs = model(**inputs) # we're now using the model inputs created from the previous tokenizer pipeline
+outputs = model(**inputs) # we're now using the model inputs created from the previous tokenizer pipeline, not the substeps.
 
 # Since we have just two sentences and two labels, the result we get from our model is of shape 2 x 2.
 print(outputs.logits.shape)
