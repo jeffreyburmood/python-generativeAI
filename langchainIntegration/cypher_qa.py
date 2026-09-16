@@ -39,7 +39,8 @@ cypher_prompt = PromptTemplate(
 )
 
 # Initialize the LLM
-cypher_model = init_chat_model("gpt-5.2", model_provider="openai")
+# cypher_model = init_chat_model("gpt-5.2", model_provider="openai")
+cypher_model = init_chat_model("claude-haiku-4-5-20251001", model_provider="anthropic")
 # You can use different LLMs to generate the Cypher query and the answer.
 # cypher_model = init_chat_model(
 #     "gpt-5-mini",
