@@ -39,6 +39,36 @@ graph = Neo4jGraph(
     database=os.getenv("NEO4J_DATABASE"),
 )
 
+# optional cypher template to improve the prompt
+cypher_template = """Task:Generate Cypher statement to query a graph database.
+Instructions:
+Use only the provided relationship types and properties in the schema.
+Do not use any other relationship types or properties that are not provided.
+For movie titles that begin with "The", move "the" to the end, for example "The 39 Steps" becomes "39 Steps, The".
+Exclude NULL values when finding the highest value of a property.
+
+Schema:
+{schema}
+Examples:
+1. Question: Get user ratings?
+   Cypher: MATCH (u:User)-[r:RATED]->(m:Movie) WHERE u.name = "User name" RETURN r.rating AS userRating
+2. Question: Get average rating for a movie?
+   Cypher: MATCH (m:Movie)<-[r:RATED]-(u:User) WHERE m.title = 'Movie Title' RETURN avg(r.rating) AS userRating
+3. Question: Get movies for a genre?
+   Cypher: MATCH ((m:Movie)-[:IN_GENRE]->(g:Genre) WHERE g.name = 'Genre Name' RETURN m.title AS movieTitle
+
+Note: Do not include any explanations or apologies in your responses.
+Do not respond to any questions that might ask anything else than for you to construct a Cypher statement.
+Do not include any text except the generated Cypher statement.
+
+The question is:
+{question}"""
+
+cypher_prompt = PromptTemplate(
+    input_variables=["schema", "question"],
+    template=cypher_template
+)
+
 # Create the Cypher QA chain
 # The return_direct parameter is set to True to return the result of the Cypher query instead of an answer.
 # This is useful when you want to pass the raw data to the agent for further processing or analysis.
@@ -48,6 +78,16 @@ cypher_qa = GraphCypherQAChain.from_llm(
     allow_dangerous_requests=True,
     return_direct=True,
 )
+
+# this option includes the cypher prompt
+# # Create the Cypher QA chain
+# cypher_qa = GraphCypherQAChain.from_llm(
+#     graph=graph,
+#     llm=model,
+#     cypher_prompt=cypher_prompt,
+#     allow_dangerous_requests=True,
+#     verbose=True,
+# )
 
 # Define functions for each step in the application
 
