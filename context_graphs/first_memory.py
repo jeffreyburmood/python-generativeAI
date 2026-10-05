@@ -14,12 +14,6 @@ from neo4j_agent_memory.config import Neo4jConfig
 
 load_dotenv()
 
-NEO4J_URI='neo4j+s://f7c186b4.databases.neo4j.io:7687'
-NEO4J_HTTP_URI='https://f7c186b4.databases.neo4j.io:443'
-NEO4J_USERNAME='f7c186b4'
-NEO4J_PASSWORD='DUo7jmk1wijCRfwWx1o_I1sxZuuxhFjxS--Cv0Y1lss'
-NEO4J_DATABASE='f7c186b4'
-
 settings = MemorySettings(
     neo4j=Neo4jConfig(
         uri=os.environ["NEO4J_URI"],
