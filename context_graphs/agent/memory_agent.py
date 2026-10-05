@@ -21,6 +21,7 @@ settings = MemorySettings(
         uri=os.environ["NEO4J_URI"],
         username=os.environ["NEO4J_USERNAME"],
         password=os.environ["NEO4J_PASSWORD"],
+        database=os.environ["NEO4J_DATABASE"],
     ),
     # The extraction pipeline runs spaCy and GLiNER before falling back to the
     # language model. Those two need extra packages (and a GPU-sized download),
