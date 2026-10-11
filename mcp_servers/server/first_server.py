@@ -5,7 +5,7 @@
 from fastmcp import FastMCP
 
 # Create an MCP server
-mcp = FastMCP("Strawbrerry")
+mcp = FastMCP("Strawberry", instructions="we are learning stuff here")
 
 @mcp.tool()
 def count_letters(text: str, search: str) -> int:
