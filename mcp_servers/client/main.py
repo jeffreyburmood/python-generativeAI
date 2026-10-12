@@ -340,7 +340,7 @@ async def interactive_tool_clientV2():
                     # List available tools, resources, and resource templates
                     tools = await client.list_tools()
 
-                    resources = await client.read_resource(uri="cupboard://fruits")
+                    resources = await client.read_resource(uri="movie://{tmdb_id}")
 
                     templates = await client.list_resource_templates()
 
@@ -433,7 +433,7 @@ async def interactive_tool_clientV2():
                             else:
                                 print("(No content returned)")
 
-                            if result.isError:
+                            if result.is_error:
                                 print("\n⚠️  Tool returned an error")
 
                             print("-" * 60)
@@ -473,10 +473,10 @@ async def interactive_tool_clientV2():
 
                             print(f"\n📋 Reading resource template: {selected_template.name}")
                             print("=" * 60)
-                            print(f"URI Template: {selected_template.uriTemplate}")
+                            print(f"URI Template: {selected_template.uri_template}")
 
                             # Extract parameters from URI template
-                            params = re.findall(r'{(\w+)}', selected_template.uriTemplate)
+                            params = re.findall(r'{(\w+)}', selected_template.uri_template)
 
                             # Prompt for parameter values
                             param_values = {}
